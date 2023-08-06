@@ -26,7 +26,7 @@ pub fn handle_args(arg: Args) -> Result<(), io::Error> {
         } => match (tar, zip) {
             (true, true) => panic!("Cannot use two arguments!"),
             (false, true) => {
-                FreightCompress::from_zip(input_items, output)?;
+                FreightCompress::from_zip(input_items, output.unwrap())?;
             }
             (true, false) => {
                 FreightCompress::from_tar(input_items, output)?;

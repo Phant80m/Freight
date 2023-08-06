@@ -21,16 +21,13 @@ jobs:
 
       - name: Compile
         id: compile
-        run: |
-          cargo build --release --target x86_64-unknown-linux-musl
-          echo "::set-output name=BUILT_ARCHIVE::target/x86_64-unknown-linux-musl/release/freight"
-          echo "::set-output name=BUILT_CHECKSUM::target/x86_64-unknown-linux-musl/release/freight"
+        run: cargo build --release
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: freight
-          path: ${{ steps.compile.outputs.BUILT_ARCHIVE }} ${{ steps.compile.outputs.BUILT_CHECKSUM }}
+          path: target/release/freight
 
       - name: Create Release
         uses: marvinpinto/action-automatic-releases@v1.2.1
@@ -38,6 +35,5 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: latest
           prerelease: false
-          title: Automatic dev Build
-          files: |
-            ${{ steps.compile.outputs.BUILT_ARCHIVE }}
+          title: Automatic Build
+          files: target/release/freight

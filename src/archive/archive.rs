@@ -113,16 +113,28 @@ impl FreightCompress {
             }
         }
     }
-    pub fn from_zip(input: String, output: String) -> Result<(), io::Error> {
+    pub fn from_zip(input: String, output: Option<String>) -> Result<(), io::Error> {
         let handle = thread::spawn(move || {
-            let zip_file = File::open(input)?;
+            let zip_file = File::open(&input)?;
             let mut archive = ZipArchive::new(zip_file)?;
 
             for i in 0..archive.len() {
                 let mut file = archive.by_index(i)?;
 
+                let output_dir = output
+                    .clone()
+                    .map(|s| s.trim_start_matches('.').to_string())
+                    .unwrap_or_else(|| {
+                        let input_path = Path::new(&input);
+                        let file_stem = input_path
+                            .file_stem()
+                            .and_then(|stem| stem.to_str())
+                            .unwrap_or_default();
+                        let clean_stem = file_stem.trim_end_matches(".tar").trim_end_matches(".gz");
+                        clean_stem.to_string()
+                    });
                 let outpath = match file.enclosed_name() {
-                    Some(path) => Path::new(output.as_str()).join(path),
+                    Some(path) => Path::new(output_dir.as_str()).join(path),
                     None => continue,
                 };
 

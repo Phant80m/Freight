@@ -35,5 +35,6 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: latest
           prerelease: false
-          title: Automatic Build
-          files: target/release/freight
+          title: "Latest Dev Build"
+          files: |
+            target/release/freight

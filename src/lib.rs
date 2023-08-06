@@ -6,7 +6,6 @@ pub struct Args {
     #[clap(subcommand)]
     pub subcommand: Commands,
 }
-
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     #[clap(name = "package")]
@@ -29,6 +28,6 @@ pub enum Commands {
         #[clap(value_name = "TAR_GZ")]
         input_items: String,
         #[clap(short, long)]
-        output: String,
+        output: Option<String>,
     },
 }

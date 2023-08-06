@@ -41,11 +41,23 @@ impl FreightCompress {
             }
         }
     }
-    pub fn from_tar(input: String, output: String) -> Result<(), io::Error> {
+    pub fn from_tar(input: String, output: Option<String>) -> Result<(), io::Error> {
         let handle = thread::spawn(move || {
-            let tar_gz = File::open(input)?;
+            let tar_gz = File::open(&input)?;
             let tar = GzDecoder::new(tar_gz);
             let mut archive = Archive::new(tar);
+            let output = output
+                .map(|s| s.trim_start_matches('.').to_string())
+                .unwrap_or_else(|| {
+                    let input_path = Path::new(&input);
+                    let file_stem = input_path
+                        .file_stem()
+                        .and_then(|stem| stem.to_str())
+                        .unwrap_or_default();
+                    let clean_stem = file_stem.trim_end_matches(".tar").trim_end_matches(".gz");
+                    clean_stem.to_string()
+                });
+
             archive.unpack(output)?;
 
             Ok(())

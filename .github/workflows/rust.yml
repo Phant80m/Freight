@@ -1,33 +1,43 @@
 name: Build
-'on':
+
+on:
   push:
     branches:
       - main
+
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+
       - name: Compile
         id: compile
-        uses: rust-build/rust-build.action@v1.4.3
-        with:
-          RUSTTARGET: x86_64-unknown-linux-musl
-          UPLOAD_MODE: none
+        run: |
+          cargo build --release --target x86_64-unknown-linux-musl
+          echo "::set-output name=BUILT_ARCHIVE::target/x86_64-unknown-linux-musl/release/freight"
+          echo "::set-output name=BUILT_CHECKSUM::target/x86_64-unknown-linux-musl/release/freight"
+
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: freight
-          path: |
-            ${{ steps.compile.outputs.BUILT_ARCHIVE }}
-            ${{ steps.compile.outputs.BUILT_CHECKSUM }}
+          path: ${{ steps.compile.outputs.BUILT_ARCHIVE }} ${{ steps.compile.outputs.BUILT_CHECKSUM }}
+
       - name: Create Release
         uses: marvinpinto/action-automatic-releases@v1.2.1
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: latest
           prerelease: false
-          title: Automatic Build
+          title: Automatic dev Build
           files: |
-            target/release/freight
+            ${{ steps.compile.outputs.BUILT_ARCHIVE }}

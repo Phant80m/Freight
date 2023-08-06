@@ -23,7 +23,7 @@ jobs:
       uses: actions/upload-artifact@v3.1.1
       with:
         name: cconvert-win-MSVC
-        path: target/release/cconvert.exe
+        path: target/release/freight.exe
     - name: Create Release
       uses: marvinpinto/action-automatic-releases@v1.2.1
       with:
